@@ -35,6 +35,10 @@
 *.i*86
 *.x86_64
 *.hex
+/output/
+/src/main/output/
+/src/include/output/
+*.DS_Store
 
 # Debug files
 *.dSYM/
@@ -50,3 +54,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# .vscode removed
+/.vscode/
+
+#IDEA removed
+/.idea/
+/venv/
