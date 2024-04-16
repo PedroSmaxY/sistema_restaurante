@@ -36,8 +36,7 @@
 *.x86_64
 *.hex
 /output/
-/src/main/output/
-/src/include/output/
+/src/output/
 *.DS_Store
 
 # Debug files
