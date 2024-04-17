@@ -1,81 +1,110 @@
+/*
+Allan Guilherme -  1230114406
+
+Henry da Silva - 1230204910
+
+Lucas Faria de Oliveira - 1230114255
+
+Pedro Henrique da Silva Novais - 1230119539
+
+Victor Jacques - 1230203770
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
 
+// Define uma enumeração para os tipos de refeição
 enum TiposRefeicao
 {
-    MARMITA = 1,
-    REFEICAO,
+    MARMITA = 1, // Define MARMITA como 1
+    REFEICAO,    // Define REFEICAO como 2 (o próximo número após MARMITA)
 };
 
+// Define uma estrutura para armazenar informações sobre o lucro de um mês
 typedef struct
 {
-    char nome[50];
-    float valorTotal;
+    char nome[50];    // Nome do mês
+    float valorTotal; // Valor total do lucro para o mês
 } LucroMes;
 
+// Define uma estrutura para armazenar informações sobre uma refeição
 typedef struct
 {
-    int posicao;
-    float preco;
-    float peso;
+    int posicao; // Posição da refeição no menu
+    float preco; // Preço da refeição
+    float peso;  // Peso da refeição
 } Refeicao;
 
+// Função para limpar o buffer de entrada
 void limparBuffer()
 {
     int c;
+    // Lê caracteres do buffer de entrada até encontrar um '\n' (fim de linha) ou EOF (fim de arquivo)
     while ((c = getchar()) != '\n' && c != EOF)
         ;
 }
 
+// Função para limpar o console
 void limparConsole()
 {
 #ifdef _WIN32
+    // Se o sistema operacional é Windows, usa o comando "CLS" para limpar o console
     system("CLS");
 #else
+    // Se o sistema operacional não é Windows, usa o comando "CLEAR" para limpar o console
     system("CLEAR");
 #endif
 }
 
-float definirValorKilo()
+// Função para definir o valor do quilo
+float definirValorQuilo()
 {
     float valor;
     do
     {
+        // Solicita ao usuário que digite o preço do quilo
         printf("Digite o preço do Kg: R$");
         scanf("%f", &valor);
+        // Limpa o buffer de entrada para remover qualquer entrada restante
         limparBuffer();
-    } while (valor <= 0);
+    } while (valor <= 0); // Repete até que o usuário digite um valor maior que 0
 
     return valor;
 }
 
+// Função para definir o preço das bebidas
 float definirBebidas()
 {
-    int escolha;
-    float preco;
+    int escolha; // Variável para armazenar a escolha do usuário
+    float preco; // Variável para armazenar o preço da bebida escolhida
+
+    // Loop infinito até que uma escolha válida seja feita
     while (1)
     {
+        // Imprime o menu de bebidas
         printf("\n------------ BEBIDAS ------------");
         printf("\n-------- Escolha pelo ID --------");
         printf("\n---------------------------------");
         printf("\nId: 1 - Coca Cola 2l - R$15,50");
         printf("\nId: 2 - Coca Cola 500ml - R$6,25");
-        printf("\nId: 3 - Mate Leão 1.5l 500ml - R$12,30");
-        printf("\nId: 4 - Mate Leão 300ml 500ml - R$5,00");
-        printf("\nId: 5 - Choco Leite 250ml - R$6,00");
-        printf("\nId: 6 - Frappuccino 500ml - R$18,00");
+        printf("\nId: 3 - Mate Leão 1.5l - R$12,30");
+        printf("\nId: 4 - Mate Leão 500ml - R$5,00");
+        printf("\nId: 5 - Guaraná 250ml - R$6,00");
+        printf("\nId: 6 - Sukita 2l - R$12,00");
         printf("\n---------------------------------");
         printf("\nEscolha: ");
-        scanf("%d", &escolha);
+        scanf("%d", &escolha); // Lê a escolha do usuário
+
+        // Verifica se a escolha é válida
         if (escolha < 0 || escolha > 6)
         {
             printf("\nID INVÁLIDO TENTE NOVAMENTE");
-            continue;
+            continue; // Se a escolha não é válida, volta para o início do loop
         }
         else
         {
+            // Atribui o preço correspondente à escolha do usuário
             switch (escolha)
             {
             case 1:
@@ -94,26 +123,28 @@ float definirBebidas()
                 preco = 6.00;
                 break;
             case 6:
-                preco = 18.00;
+                preco = 12.00;
                 break;
             }
-            return preco;
+            return preco; // Retorna o preço da bebida escolhida
         }
     }
 }
 
+// Função para ordenar as vendas do dia por valor
 void ordenarValorDia(Refeicao vendas[], int tamanho)
 {
     int i, j;
     Refeicao temp;
 
+    // Algoritmo de ordenação bubble sort
     for (i = 0; i < tamanho - 1; i++)
     {
         for (j = 0; j < tamanho - i - 1; j++)
         {
+            // Se o preço da venda atual é menor que o próximo, troca os dois
             if (vendas[j].preco < vendas[j + 1].preco)
             {
-                // Troca os elementos
                 temp = vendas[j];
                 vendas[j] = vendas[j + 1];
                 vendas[j + 1] = temp;
@@ -122,59 +153,55 @@ void ordenarValorDia(Refeicao vendas[], int tamanho)
     }
 }
 
-void registrarVenda(Refeicao vendas[], int tamanho, int *contador, float precoKilo)
+// Função para registrar uma venda
+void registrarVenda(Refeicao vendas[], int tamanho, int *contador, float precoQuilo)
 {
-    int escolhaTipoRefeicao;
-    char escolhaBebida;
-    char continuar;
+    int i;
+    int escolhaTipoRefeicao; // Variável para armazenar o tipo de refeição escolhido
+    char escolhaBebida;      // Variável para armazenar se o cliente quer uma bebida
+    char continuar;          // Variável para armazenar se o usuário quer continuar registrando vendas
+    int contadorVenda = *contador;
 
-    for (int i = *contador; i < tamanho; i++)
+    // Loop para registrar as vendas
+    // Loop para registrar as vendas
+    for (i = *contador; i < tamanho;)
     {
-        if (i > 0)
-        {
-            if (escolhaTipoRefeicao == 2 || escolhaTipoRefeicao == 1)
-            {
-                printf("Deseja continuar? [S/N]: ");
-                scanf(" %c", &continuar);
-                limparBuffer();
+        // Incrementa o contador de vendas
+        contadorVenda++;
+        vendas[i].posicao = contadorVenda;
 
-                if (continuar == 'N' || continuar == 'n')
-                    break;
-            }
-            else
-            {
-                i--;
-            }
-        }
-        (*contador)++;
-        vendas[i].posicao = i + 1;
-
+        // Solicita ao usuário que digite o peso da refeição
         printf("\nVenda %d", vendas[i].posicao);
-        printf("\n\nDigite o peso em gramas: ");
+        printf("\n\nDigite o peso da refeição em gramas: ");
         scanf("%f", &vendas[i].peso);
         limparBuffer();
 
+        // Converte o peso para quilogramas
         vendas[i].peso /= 1000;
 
+        // Pergunta ao usuário se ele quer uma bebida
         printf("\nDeseja Bebida? [S/N]: ");
         scanf(" %c", &escolhaBebida);
 
+        // Se o usuário quer uma bebida, adiciona o preço da bebida ao preço da refeição
         if (escolhaBebida == 'S' || escolhaBebida == 's')
         {
             vendas[i].preco += definirBebidas();
         }
 
-        printf("\n1 - Marmita\n2 - Refeição\nEscolha: ");
+        // Pergunta ao usuário o tipo de refeição
+        printf("\n1 - Marmita com custo adicional\n2 - Refeição sem custo adicional\nEscolha: ");
         scanf("%d", &escolhaTipoRefeicao);
         limparBuffer();
 
+        // Calcula o preço da refeição com base no tipo escolhido
         switch (escolhaTipoRefeicao)
         {
         case MARMITA:
-            vendas[i].preco += (precoKilo * vendas[i].peso) + 0.50;
+            vendas[i].preco += ((precoQuilo * vendas[i].peso) + 20) + 0.50;
             break;
         case REFEICAO:
-            vendas[i].preco += precoKilo * vendas[i].peso;
+            vendas[i].preco += precoQuilo * vendas[i].peso;
             break;
         default:
             printf("\nDigite um número válido!!!");
@@ -182,56 +209,79 @@ void registrarVenda(Refeicao vendas[], int tamanho, int *contador, float precoKi
             getchar();
             continue;
         }
+
+        // Pergunta se o usuário quer continuar
+        printf("Deseja continuar? [S/N]: ");
+        scanf(" %c", &continuar);
+        limparBuffer();
+
+        // Se o usuário não quer continuar, sai do loop
+        if (continuar == 'N' || continuar == 'n')
+            break;
+
+        // Incrementa o contador do loop
+        i++;
     }
+    *contador = contadorVenda;
+
+    // Ordena as vendas do dia por valor
     ordenarValorDia(vendas, tamanho);
 }
 
+// Função para definir o valor mensal
 float definirValorMensal()
 {
-    float valorMensal;
+    float valorMensal; // Variável para armazenar o valor mensal
 
+    // Loop infinito até que um valor válido seja inserido
     while (1)
     {
-        printf("\nDigite o valor bruto mensal: R$");
-        scanf("%f", &valorMensal);
+        printf("\nDigite o valor bruto mensal: R$"); // Solicita ao usuário que insira o valor mensal
+        scanf("%f", &valorMensal);                   // Lê o valor mensal
+
+        // Se o valor for maior que 0, sai do loop
         if (valorMensal > 0)
         {
             break;
         }
         else
         {
-            printf("\nValor Inválido!!!");
-            continue;
+            printf("\nValor Inválido!!!"); // Imprime uma mensagem de erro se o valor for inválido
+            continue;                      // Continua o loop se o valor for inválido
         }
     }
-    return valorMensal;
+    return valorMensal; // Retorna o valor mensal
 }
 
+// Função para ordenar os valores mensais
 void ordenarValoresMes(LucroMes lucroMeses[])
 {
-    int i, j;
-    LucroMes temp;
+    int i, j;      // Variáveis para os índices do loop
+    LucroMes temp; // Variável temporária para a troca de elementos
 
+    // Algoritmo de ordenação bubble sort
     for (i = 0; i < 12 - 1; i++)
     {
         for (j = 0; j < 12 - i - 1; j++)
         {
+            // Se o valor atual for menor que o próximo, troca os elementos
             if (lucroMeses[j].valorTotal < lucroMeses[j + 1].valorTotal)
             {
-                // Troca os elementos
-                temp = lucroMeses[j];
-                lucroMeses[j] = lucroMeses[j + 1];
-                lucroMeses[j + 1] = temp;
+                temp = lucroMeses[j];              // Armazena o valor atual na variável temporária
+                lucroMeses[j] = lucroMeses[j + 1]; // Substitui o valor atual pelo próximo
+                lucroMeses[j + 1] = temp;          // Substitui o próximo valor pelo valor temporário
             }
         }
     }
 }
 
+// Função para registrar o lucro mensal
 void registroLucroMensal(LucroMes lucroMeses[], int *contador)
 {
-    int escolhaMenu;
-    int contadorInterno = *contador;
+    int escolhaMenu;                 // Variável para armazenar a escolha do menu do usuário
+    int contadorInterno = *contador; // Variável para armazenar o valor do contador
 
+    // Loop infinito até que a opção 0 seja escolhida
     while (1)
     {
         limparConsole();
@@ -257,17 +307,22 @@ void registroLucroMensal(LucroMes lucroMeses[], int *contador)
         scanf("%d", &escolhaMenu);
         limparBuffer();
 
+        // Se a escolha não for 0, entra no switch case
         if (escolhaMenu != 0)
         {
-
+            // Switch case para cada mês
             switch (escolhaMenu)
             {
             case 1:
+                // Define o valor mensal para Janeiro
                 lucroMeses[0].valorTotal = definirValorMensal();
+                // Define o nome do mês para Janeiro
                 strcpy(lucroMeses[0].nome, "Janeiro");
+                // Incrementa o contador se for menor que 12
                 if (contadorInterno < 12)
                     contadorInterno++;
                 break;
+                // O mesmo é feito para os outros meses...
             case 2:
                 lucroMeses[1].valorTotal = definirValorMensal();
                 strcpy(lucroMeses[1].nome, "Fevereiro");
@@ -342,6 +397,7 @@ void registroLucroMensal(LucroMes lucroMeses[], int *contador)
         }
         else
         {
+            // Se a escolha for 0, sai do loop
             break;
         }
     }
@@ -349,77 +405,108 @@ void registroLucroMensal(LucroMes lucroMeses[], int *contador)
     ordenarValoresMes(lucroMeses);
 }
 
-void resumoDiario(Refeicao vendas[], int contador, float precoKilo)
+// Função para exibir um resumo diário das vendas
+void resumoDiario(Refeicao vendas[], int contador, float precoQuilo)
 {
-    float valorTotal = 0;
-    printf("\n---------- Resumo Diário ----------");
-    printf("\nPreço do Kg: %.2f", precoKilo);
+    float valorTotal = 0; // Variável para armazenar o valor total das vendas
+    int i;
+    // Imprime o cabeçalho do resumo diário e o preço por quilo
+    printf("\n--------- Resumo Diário -----------");
+    printf("\nPreço do Kg: %.2f", precoQuilo);
     printf("\n-----------------------------------");
-    for (int i = 0; i < contador; i++)
+
+    // Loop para percorrer todas as vendas
+    for (i = 0; i < contador; i++)
     {
+        // Imprime os detalhes de cada venda
         printf("\nVenda: %d", vendas[i].posicao);
         printf("\nPeso: %.3f Kg", vendas[i].peso);
         printf("\nPreço: R$%.2f ", vendas[i].preco);
         printf("\n-----------------------------------");
+        // Adiciona o preço da venda ao valor total
         valorTotal += vendas[i].preco;
     }
+
+    // Imprime o lucro bruto do dia
     printf("\nLucro bruto do dia: R$%.2f", valorTotal);
 
+    // Aguarda o usuário pressionar ENTER para continuar
     printf("\nPresione ENTER para continuar. . .");
     getchar();
 }
 
+// Função para exibir um resumo anual das vendas
 void resumoAnual(LucroMes lucroMeses[], int tamanho)
 {
-    float valorTotal = 0;
+    int i;
+    float valorTotal = 0; // Variável para armazenar o valor total das vendas
+
+    // Imprime o cabeçalho do resumo anual
     printf("\n---------- Resumo Anual -----------");
-    for (int i = 0; i < tamanho; i++)
+
+    // Loop para percorrer todos os meses
+    for (i = 0; i < tamanho; i++)
     {
+        // Adiciona o valor total do mês ao valor total anual
         valorTotal += lucroMeses[i].valorTotal;
+
+        // Imprime os detalhes de cada mês
         printf("\n%s", lucroMeses[i].nome);
         printf("\nPreço: %.2f", lucroMeses[i].valorTotal);
         printf("\n-----------------------------------");
     }
+
+    // Imprime o valor bruto anual
     printf("\nValor bruto anual: %.2f", valorTotal);
+
+    // Aguarda o usuário pressionar ENTER para continuar
     printf("\nPresione ENTER para continuar. . .");
     getchar();
 }
 
+// Função principal do programa
 int main()
 {
-    int escolhaMenu;
-    int contador = 0;
-    int contadorAnual = 0;
-    // FILE *arquivoDat = fopen("resumo_dia.dat", "wb");
-    float precoKilo = 0;
-    Refeicao vendas[100];
-    LucroMes lucroMeses[12];
+    // Declaração de variáveis
+    size_t i;
+    int escolhaMenu;         // Variável para armazenar a escolha do menu do usuário
+    int contador = 0;        // Contador para as vendas diárias
+    int contadorAnual = 0;   // Contador para o lucro mensal
+    float precoQuilo = 0;    // Preço por quilo
+    Refeicao vendas[100];    // Array para armazenar as vendas diárias
+    LucroMes lucroMeses[12]; // Array para armazenar o lucro mensal
 
-    for (size_t i = 0; i < sizeof(lucroMeses) / sizeof(lucroMeses[0]); i++)
+    // Inicialização dos arrays
+    for (i = 0; i < sizeof(lucroMeses) / sizeof(lucroMeses[0]); i++)
     {
-        lucroMeses[i].nome[0] = '\0';
-        lucroMeses[i].valorTotal = 0.0;
+        lucroMeses[i].nome[0] = '\0';   // Inicializa o nome do mês com uma string vazia
+        lucroMeses[i].valorTotal = 0.0; // Inicializa o valor total do mês com 0
     }
 
-    for (size_t i = 0; i < sizeof(vendas) / sizeof(vendas[0]); i++)
+    for (i = 0; i < sizeof(vendas) / sizeof(vendas[0]); i++)
     {
-        vendas[i].peso = 0.0;
-        vendas[i].preco = 0.0;
+        vendas[i].peso = 0.0;  // Inicializa o peso da venda com 0
+        vendas[i].preco = 0.0; // Inicializa o preço da venda com 0
     }
 
+    // Configura o locale para português
     setlocale(LC_ALL, "Portuguese");
+    // Limpa o console
     limparConsole();
 
+    // Loop infinito para o menu principal
     while (1)
     {
-        if (precoKilo == 0)
+        // Se o preço por quilo ainda não foi definido, solicita ao usuário que o defina
+        if (precoQuilo == 0)
         {
             printf("\n-------------------------------");
-            printf("\nSISTEMA - RESTAURANTE A KILO");
+            printf("\nSISTEMA - RESTAURANTE A QUILO");
             printf("\n-------------------------------\n");
-            precoKilo = definirValorKilo();
+            precoQuilo = definirValorQuilo();
         }
 
+        // Limpa o console e imprime o menu principal
         limparConsole();
         printf("\n-------------------------------");
         printf("\nSISTEMA - RESTAURANTE A QUILO");
@@ -432,33 +519,40 @@ int main()
         printf("\n0 - Encerrar o programa");
         printf("\n-------------------------------");
         printf("\nDigite: ");
-        scanf("%d", &escolhaMenu);
-        limparBuffer();
+        scanf("%d", &escolhaMenu); // Lê a escolha do usuário
+        limparBuffer();            // Limpa o buffer
 
+        // Se a escolha não for 0, entra no switch case
         if (escolhaMenu != 0)
         {
             switch (escolhaMenu)
             {
             case 1:
+                // Registra uma venda diária
                 limparConsole();
-                registrarVenda(vendas, sizeof(vendas) / sizeof(vendas[0]), &contador, precoKilo);
+                registrarVenda(vendas, sizeof(vendas) / sizeof(vendas[0]), &contador, precoQuilo);
                 break;
             case 2:
+                // Exibe o resumo diário
                 limparConsole();
-                resumoDiario(vendas, contador, precoKilo);
+                resumoDiario(vendas, contador, precoQuilo);
                 break;
             case 3:
+                // Registra o lucro mensal
                 registroLucroMensal(lucroMeses, &contadorAnual);
                 break;
             case 4:
+                // Exibe o resumo anual
                 limparConsole();
                 resumoAnual(lucroMeses, contadorAnual);
                 break;
             case 5:
+                // Redefine o preço por quilo
                 limparConsole();
-                precoKilo = definirValorKilo();
+                precoQuilo = definirValorQuilo();
                 break;
             default:
+                // Imprime uma mensagem de erro se a escolha for inválida
                 printf("\nDigite um número válido!!!");
                 printf("\nPresione ENTER para continuar. . .");
                 getchar();
@@ -467,9 +561,11 @@ int main()
         }
         else
         {
+            // Se a escolha for 0, sai do loop e encerra o programa
             break;
         }
     }
+    // Imprime uma mensagem de encerramento do programa
     printf("\nPrograma Encerrado. . .");
-    return 0;
+    return 0; // Retorna 0 indicando que o programa terminou com sucesso
 }
