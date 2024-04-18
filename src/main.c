@@ -405,10 +405,43 @@ void registroLucroMensal(LucroMes lucroMeses[], int *contador)
     ordenarValoresMes(lucroMeses);
 }
 
+// Função para salvar os dados diários
+void salvarDadosDiario(Refeicao vendas[], int contador, float precoQuilo)
+{
+    // Tenta abrir o arquivo 'resumo_diario.dat' no modo binário de escrita
+    FILE *arquivoDat = fopen("resumo_diario.dat", "wb");
+
+    // Se o arquivo não puder ser aberto (ou criado), exibe uma mensagem de erro e encerra o programa
+    if (arquivoDat == NULL)
+    {
+        printf("\nErro: Falha ao criar o arquivo 'resumo_diario.dat' para gravação!");
+        exit(1);
+    }
+
+    // Grava o preço por quilo no arquivo
+    fwrite(&precoQuilo, sizeof(float), 1, arquivoDat);
+
+    // Grava o contador de vendas no arquivo
+    fwrite(&contador, sizeof(int), 1, arquivoDat);
+
+    // Grava cada venda no arquivo
+    for (int i = 0; i < contador; i++)
+    {
+        fwrite(&vendas[i], sizeof(Refeicao), 1, arquivoDat);
+    }
+
+    // Fecha o arquivo
+    fclose(arquivoDat);
+
+    // Exibe uma mensagem indicando que os dados foram salvos com sucesso
+    printf("\nDados diários salvos com sucesso no arquivo 'resumo_diario.dat'!");
+}
+
 // Função para exibir um resumo diário das vendas
 void resumoDiario(Refeicao vendas[], int contador, float precoQuilo)
 {
     float valorTotal = 0; // Variável para armazenar o valor total das vendas
+    char escolha;
     int i;
     // Imprime o cabeçalho do resumo diário e o preço por quilo
     printf("\n--------- Resumo Diário -----------");
@@ -431,14 +464,62 @@ void resumoDiario(Refeicao vendas[], int contador, float precoQuilo)
     printf("\nLucro bruto do dia: R$%.2f", valorTotal);
 
     // Aguarda o usuário pressionar ENTER para continuar
+
+    while (1)
+    {
+        printf("\nDeseja salvar em um arquivo? [S/N]: ");
+        scanf(" %c", &escolha);
+        limparBuffer();
+
+        if (escolha == 'S' || escolha == 's')
+        {
+            salvarDadosDiario(vendas, contador, precoQuilo);
+            break;
+        }
+        else
+        {
+            break;
+        }
+    }
+
     printf("\nPresione ENTER para continuar. . .");
     getchar();
+}
+
+// Função para salvar os dados anuais
+void salvarDadosAnuais(LucroMes lucroMeses[], int tamanho)
+{
+    // Tenta abrir o arquivo 'resumo_anual.dat' no modo binário de escrita
+    FILE *arquivoDat = fopen("resumo_anual.dat", "wb");
+
+    // Se o arquivo não puder ser aberto (ou criado), exibe uma mensagem de erro e encerra o programa
+    if (arquivoDat == NULL)
+    {
+        printf("\nErro: Falha ao criar o arquivo 'resumo_anual.dat' para gravação!");
+        exit(1);
+    }
+
+    // Grava o tamanho (número de meses) no arquivo
+    fwrite(&tamanho, sizeof(int), 1, arquivoDat);
+
+    // Grava os dados de cada mês no arquivo
+    for (int i = 0; i < tamanho; i++)
+    {
+        fwrite(&lucroMeses[i], sizeof(LucroMes), 1, arquivoDat);
+    }
+
+    // Fecha o arquivo
+    fclose(arquivoDat);
+
+    // Exibe uma mensagem indicando que os dados foram salvos com sucesso
+    printf("\nDados diários salvos com sucesso no arquivo 'resumo_anual.dat'!");
 }
 
 // Função para exibir um resumo anual das vendas
 void resumoAnual(LucroMes lucroMeses[], int tamanho)
 {
     int i;
+    char escolha;
     float valorTotal = 0; // Variável para armazenar o valor total das vendas
 
     // Imprime o cabeçalho do resumo anual
@@ -459,9 +540,128 @@ void resumoAnual(LucroMes lucroMeses[], int tamanho)
     // Imprime o valor bruto anual
     printf("\nValor bruto anual: %.2f", valorTotal);
 
+    while (1)
+    {
+        printf("\nDeseja salvar em um arquivo? [S/N]: ");
+        scanf(" %c", &escolha);
+        limparBuffer();
+
+        if (escolha == 'S' || escolha == 's')
+        {
+            salvarDadosAnuais(lucroMeses, tamanho);
+            break;
+        }
+        else
+        {
+            break;
+        }
+    }
+
     // Aguarda o usuário pressionar ENTER para continuar
     printf("\nPresione ENTER para continuar. . .");
     getchar();
+}
+
+// Função para exibir os dados armazenados nos arquivos
+void exibirDadosArquivos()
+{
+    int escolha;
+    // Loop infinito até que o usuário escolha sair
+    while (1)
+    {
+        // Solicita ao usuário que escolha uma opção
+        printf("\n1 - Resumo Diário\n2 - Resumo Anual\n0 - Sair\nEscolha: ");
+        scanf("%d", &escolha);
+        limparBuffer();
+
+        // Se a escolha for 1, exibe o resumo diário
+        if (escolha == 1)
+        {
+            limparConsole();
+
+            // Abre o arquivo de resumo diário para leitura
+            FILE *arquivoDat = fopen("resumo_diario.dat", "rb");
+
+            // Se o arquivo não puder ser aberto, exibe uma mensagem de erro e retorna
+            if (arquivoDat == NULL)
+            {
+                printf("\nErro: Falha ao abrir o arquivo 'resumo_diario.dat' para leitura!");
+                printf("\nPressione ENTER para continuar. . .");
+                getchar();
+                return;
+            }
+
+            float precoQuilo;
+            int contador;
+
+            // Lê o preço por quilo e o contador do arquivo
+            fread(&precoQuilo, sizeof(float), 1, arquivoDat);
+            fread(&contador, sizeof(int), 1, arquivoDat);
+
+            // Imprime o cabeçalho do resumo
+            printf("\n-------- Resumo Diário -----------");
+            printf("\nPreço do Quilo: %.2f", precoQuilo);
+            printf("\n----------------------------------");
+
+            // Lê e imprime cada venda
+            for (int i = 0; i < contador; i++)
+            {
+                Refeicao venda;
+                fread(&venda, sizeof(Refeicao), 1, arquivoDat);
+
+                printf("\nVenda: %d", venda.posicao);
+                printf("\nPeso: %.3f Kg", venda.peso);
+                printf("\nPreço: R$%.2f ", venda.preco);
+                printf("\n-----------------------------------");
+            }
+
+            // Fecha o arquivo
+            fclose(arquivoDat);
+        }
+        // Se a escolha for 2, exibe o resumo anual
+        else if (escolha == 2)
+        {
+            limparConsole();
+
+            int tamanho;
+
+            // Abre o arquivo de resumo anual para leitura
+            FILE *arquivoDat = fopen("resumo_anual.dat", "rb");
+            if (arquivoDat == NULL)
+            {
+                printf("\nErro: Falha ao abrir o arquivo '%s' para leitura!", "resumo_anual.dat");
+                return;
+            }
+
+            // Lê o tamanho do arquivo
+            fread(&tamanho, sizeof(int), 1, arquivoDat);
+
+            // Lê e imprime cada mês e seu lucro
+            printf("\n-----------------------------------");
+            for (int i = 0; i < tamanho; i++)
+            {
+                LucroMes lucroMes;
+                fread(&lucroMes, sizeof(LucroMes), 1, arquivoDat);
+
+                printf("\n%s", lucroMes.nome);
+                printf("\nValor Bruto: R$%.2f", lucroMes.valorTotal);
+                printf("\n-----------------------------------");
+            }
+
+            // Fecha o arquivo
+            fclose(arquivoDat);
+        }
+        // Se a escolha for 0, sai do loop
+        else if (escolha == 0)
+            break;
+        // Se a escolha não for 1, 2 ou 0, exibe uma mensagem de erro
+        else
+        {
+            printf("\nDigite um número válido !!!");
+            printf("\nPressione ENTER para continuar. . .");
+            getchar();
+        }
+    }
 }
 
 // Função principal do programa
@@ -516,6 +716,7 @@ int main()
         printf("\n3 - Registrar Lucro Mensal");
         printf("\n4 - Resumo Anual");
         printf("\n5 - Redefinir o preço do Kg");
+        printf("\n6 - Carregar dados dos arquivos");
         printf("\n0 - Encerrar o programa");
         printf("\n-------------------------------");
         printf("\nDigite: ");
@@ -550,6 +751,11 @@ int main()
                 // Redefine o preço por quilo
                 limparConsole();
                 precoQuilo = definirValorQuilo();
+                break;
+            case 6:
+                // Exibi as informações salvas nos arquivos
+                limparConsole();
+                exibirDadosArquivos(contadorAnual);
                 break;
             default:
                 // Imprime uma mensagem de erro se a escolha for inválida
