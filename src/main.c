@@ -408,6 +408,7 @@ void registroLucroMensal(LucroMes lucroMeses[], int *contador)
 // Função para salvar os dados diários
 void salvarDadosDiario(Refeicao vendas[], int contador, float precoQuilo)
 {
+    int i;
     // Tenta abrir o arquivo 'resumo_diario.dat' no modo binário de escrita
     FILE *arquivoDat = fopen("resumo_diario.dat", "wb");
 
@@ -425,7 +426,7 @@ void salvarDadosDiario(Refeicao vendas[], int contador, float precoQuilo)
     fwrite(&contador, sizeof(int), 1, arquivoDat);
 
     // Grava cada venda no arquivo
-    for (int i = 0; i < contador; i++)
+    for (i = 0; i < contador; i++)
     {
         fwrite(&vendas[i], sizeof(Refeicao), 1, arquivoDat);
     }
@@ -489,6 +490,7 @@ void resumoDiario(Refeicao vendas[], int contador, float precoQuilo)
 // Função para salvar os dados anuais
 void salvarDadosAnuais(LucroMes lucroMeses[], int tamanho)
 {
+    int i;
     // Tenta abrir o arquivo 'resumo_anual.dat' no modo binário de escrita
     FILE *arquivoDat = fopen("resumo_anual.dat", "wb");
 
@@ -503,7 +505,7 @@ void salvarDadosAnuais(LucroMes lucroMeses[], int tamanho)
     fwrite(&tamanho, sizeof(int), 1, arquivoDat);
 
     // Grava os dados de cada mês no arquivo
-    for (int i = 0; i < tamanho; i++)
+    for (i = 0; i < tamanho; i++)
     {
         fwrite(&lucroMeses[i], sizeof(LucroMes), 1, arquivoDat);
     }
@@ -579,6 +581,8 @@ void exibirDadosArquivos()
         {
             limparConsole();
 
+            int i;
+
             // Abre o arquivo de resumo diário para leitura
             FILE *arquivoDat = fopen("resumo_diario.dat", "rb");
 
@@ -604,7 +608,7 @@ void exibirDadosArquivos()
             printf("\n----------------------------------");
 
             // Lê e imprime cada venda
-            for (int i = 0; i < contador; i++)
+            for (i = 0; i < contador; i++)
             {
                 Refeicao venda;
                 fread(&venda, sizeof(Refeicao), 1, arquivoDat);
@@ -624,6 +628,7 @@ void exibirDadosArquivos()
             limparConsole();
 
             int tamanho;
+            int i;
 
             // Abre o arquivo de resumo anual para leitura
             FILE *arquivoDat = fopen("resumo_anual.dat", "rb");
@@ -638,7 +643,7 @@ void exibirDadosArquivos()
 
             // Lê e imprime cada mês e seu lucro
             printf("\n-----------------------------------");
-            for (int i = 0; i < tamanho; i++)
+            for (i = 0; i < tamanho; i++)
             {
                 LucroMes lucroMes;
                 fread(&lucroMes, sizeof(LucroMes), 1, arquivoDat);
