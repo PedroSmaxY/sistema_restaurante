@@ -7,7 +7,7 @@ Lucas Faria de Oliveira - 1230114255
 
 Pedro Henrique da Silva Novais - 1230119539
 
-Victor Jacques - 1230203770
+Victor Jacque - 1230203770
 */
 #include <stdio.h>
 #include <stdlib.h>
